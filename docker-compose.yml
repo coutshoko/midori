@@ -1,6 +1,13 @@
 version: '3.9'
 
 services:
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ramielshoko7@gmail.com --agree-tos --no-eff-email -d murakami.coutshoko.dev -d tarkov.coutshoko.dev -d dota2.coutshoko.dev -d coutshoko.dev
   nginx:
     image: nginx:alpine
     ports:
@@ -8,6 +15,8 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
     depends_on:
       - murakami-quotes
       - tarkov
