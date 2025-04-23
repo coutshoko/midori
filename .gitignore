@@ -1,0 +1,22 @@
+# Node
+**/node_modules/
+**/dist/
+**/.turbo/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Env
+**/.env
+.env
+
+# Build output
+**/build/
+**/.next/
+**/.output/
+
+# System files
+.DS_Store
+Thumbs.db
