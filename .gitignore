@@ -13,8 +13,8 @@ pnpm-debug.log*
 .env
 # Never pull/push these certs
 
-# certbot/conf/
-# certbot/www/
+certbot/conf/
+certbot/www/
 
 # Build output
 **/build/
