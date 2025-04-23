@@ -22,13 +22,20 @@ function Home() {
       id: 3,
       title: 'Dota 2 Current Rank',
       description: 'Display my current rank in Dota 2 using a simple API.',
-      link: 'https://dota.coutshoko.dev',
+      link: 'https://dota2.coutshoko.dev',
       github: 'https://github.com/coutshoko/dota2currank'
     },
     {
       id: 4,
       title: 'coutshoko.dev',
-      description: 'My own website, using React. hosted on VPS. You are here!'
+      description: 'My own website, using React. hosted on VPS. You are here!',
+      github: 'https://github.com/coutshoko/midori'
+    },
+    {
+      id: 5,
+      title: 'Mini Automation Pipeline',
+      description: 'Automated deployment pipeline for my personal website(this) using GitHub Actions and Docker. It builds and updates the site on a VPS, with HTTPS enabled via Let’s Encrypt and Nginx.',
+      github: 'https://github.com/coutshoko/midori'
     }
   ];
 
