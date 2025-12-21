@@ -56,5 +56,12 @@ jobs:
               git clone https://github.com/coutshoko/chatboard.git
             fi
 
+            # portfolio (cloned at same level as midori, not in ./app)
+            if [ -d "portfolio" ]; then
+              cd portfolio && git pull origin main && cd ..
+            else
+              git clone https://github.com/coutshoko/portfolio.git
+            fi
+
             cd midori
             docker compose up -d --build

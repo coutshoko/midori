@@ -24,6 +24,7 @@ services:
       - dota2
       - chatboard-backend
       - chatboard-frontend
+      - portfolio
     restart: unless-stopped
 
   murakami-quotes:
@@ -85,6 +86,14 @@ services:
     expose:
       - "3000"
     container_name: chatboard-frontend
+    restart: unless-stopped
+
+  portfolio:
+    build:
+      context: ../portfolio
+    expose:
+      - "3000"
+    container_name: portfolio
     restart: unless-stopped
 
 volumes:
