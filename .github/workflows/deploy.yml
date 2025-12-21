@@ -22,4 +22,30 @@ jobs:
           script: |
             cd ./midori
             git pull origin main
+
+            mkdir -p ./app
+            cd ./app
+
+            # haruki-murakami-random-quotes
+            if [ -d "haruki-murakami-random-quotes" ]; then
+              cd haruki-murakami-random-quotes && git pull origin main && cd ..
+            else
+              git clone https://github.com/coutshoko/haruki-murakami-random-quotes.git
+            fi
+
+            # tarkov-flea-market-stock-exchange
+            if [ -d "tarkov-flea-market-stock-exchange" ]; then
+              cd tarkov-flea-market-stock-exchange && git pull origin main && cd ..
+            else
+              git clone https://github.com/coutshoko/tarkov-flea-market-stock-exchange.git
+            fi
+
+            # dota2currank
+            if [ -d "dota2currank" ]; then
+              cd dota2currank && git pull origin main && cd ..
+            else
+              git clone https://github.com/coutshoko/dota2currank.git
+            fi
+
+            cd ..
             docker compose up -d --build
