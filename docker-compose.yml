@@ -7,7 +7,7 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/certbot --email ramielshoko7@gmail.com --agree-tos --no-eff-email -d murakami.coutshoko.dev -d tarkov.coutshoko.dev -d dota2.coutshoko.dev -d coutshoko.dev
+    command: certonly --webroot --webroot-path=/var/www/certbot --email ramielshoko7@gmail.com --agree-tos --no-eff-email -d murakami.coutshoko.dev -d tarkov.coutshoko.dev -d dota2.coutshoko.dev -d chatboard.coutshoko.dev -d coutshoko.dev
   nginx:
     image: nginx:alpine
     ports:
@@ -22,6 +22,8 @@ services:
       - murakami-quotes
       - tarkov
       - dota2
+      - chatboard-backend
+      - chatboard-frontend
     restart: unless-stopped
 
   murakami-quotes:
@@ -47,3 +49,43 @@ services:
       - "3000"
     container_name: dota2
     restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: chatboard-postgres
+    environment:
+      POSTGRES_DB: chatboard
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    restart: unless-stopped
+
+  chatboard-backend:
+    build:
+      context: ../chatboard
+    expose:
+      - "3000"
+    container_name: chatboard-backend
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/chatboard?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:-supersecretkey123}
+      PORT: 3000
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  chatboard-frontend:
+    build:
+      context: ../chatboard/frontend
+      args:
+        VITE_API_URL: https://chatboard.coutshoko.dev
+    expose:
+      - "3000"
+    container_name: chatboard-frontend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

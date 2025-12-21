@@ -47,5 +47,14 @@ jobs:
               git clone https://github.com/coutshoko/dota2currank.git
             fi
 
-            cd ..
+            cd ../..
+
+            # chatboard (cloned at same level as midori, not in ./app)
+            if [ -d "chatboard" ]; then
+              cd chatboard && git pull origin main && cd ..
+            else
+              git clone https://github.com/coutshoko/chatboard.git
+            fi
+
+            cd midori
             docker compose up -d --build
