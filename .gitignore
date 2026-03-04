@@ -24,3 +24,5 @@ certbot/www/
 # System files
 .DS_Store
 Thumbs.db
+
+/app
