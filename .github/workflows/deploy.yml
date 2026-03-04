@@ -15,13 +15,24 @@ jobs:
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         with:
-          host: ${{ secrets.VPS_SSH_HOST }}
-          username: root
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.PI_SSH_HOST }}
+          username: ${{ secrets.PI_SSH_USER }}
+          key: ${{ secrets.PI_SSH_KEY }}
+          envs: POSTGRES_PASSWORD,JWT_SECRET
           script: |
             cd ./midori
             git pull origin main
+
+            # Write runtime secrets to .env (never committed to git)
+            cat > .env <<EOF
+            POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            JWT_SECRET=${JWT_SECRET}
+            EOF
+            chmod 600 .env
 
             mkdir -p ./app
             cd ./app
@@ -49,14 +60,14 @@ jobs:
 
             cd ../..
 
-            # chatboard (cloned at same level as midori, not in ./app)
+            # chatboard (cloned as sibling of midori, not inside ./app)
             if [ -d "chatboard" ]; then
               cd chatboard && git pull origin main && cd ..
             else
               git clone https://github.com/coutshoko/chatboard.git
             fi
 
-            # portfolio (cloned at same level as midori, not in ./app)
+            # portfolio (cloned as sibling of midori, not inside ./app)
             if [ -d "portfolio" ]; then
               cd portfolio && git pull origin main && cd ..
             else
