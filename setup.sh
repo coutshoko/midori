@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PARENT_DIR="$(dirname "$SCRIPT_DIR")"
+# PARENT_DIR="$(dirname "$SCRIPT_DIR")"
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -37,35 +37,38 @@ clone_or_pull "$SCRIPT_DIR/app/tarkov-flea-market-stock-exchange" \
 clone_or_pull "$SCRIPT_DIR/app/dota2currank" \
   "https://github.com/coutshoko/dota2currank.git"
 
-# ---------------------------------------------------------------------------
-# Repos built from sibling directories (../chatboard, ../portfolio)
-# ---------------------------------------------------------------------------
-clone_or_pull "$PARENT_DIR/chatboard" \
-  "https://github.com/coutshoko/chatboard.git"
-
-clone_or_pull "$PARENT_DIR/portfolio" \
+clone_or_pull "$SCRIPT_DIR/app/portfolio" \
   "https://github.com/coutshoko/portfolio.git"
+# ---------------------------------------------------------------------------
+# Chatboard — commented out, kept for reference
+# clone_or_pull "$PARENT_DIR/chatboard" \
+#   "https://github.com/coutshoko/chatboard.git"
+# ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
-# .env — generate once with random secrets; never overwrite
+# .env — scaffold once; never overwrite
 # ---------------------------------------------------------------------------
 if [ ! -f "$SCRIPT_DIR/.env" ]; then
-  log "Generating .env with random secrets..."
+  log "Scaffolding .env..."
   cat > "$SCRIPT_DIR/.env" <<EOF
-POSTGRES_PASSWORD=$(openssl rand -hex 24)
-JWT_SECRET=$(openssl rand -hex 32)
+DOMAIN=
+CLOUDFLARE_TUNNEL_TOKEN=
 EOF
   chmod 600 "$SCRIPT_DIR/.env"
-  log ".env created."
+  warn ".env created — fill in DOMAIN and CLOUDFLARE_TUNNEL_TOKEN before starting."
 else
-  warn ".env already exists — skipping secret generation."
+  warn ".env already exists — skipping."
 fi
 
-# Remind the user to add their Cloudflare tunnel token if it's missing.
-if ! grep -q "CLOUDFLARE_TUNNEL_TOKEN=." "$SCRIPT_DIR/.env" 2>/dev/null; then
-  warn "CLOUDFLARE_TUNNEL_TOKEN is not set in .env"
-  warn "Add it before running docker compose:"
-  warn "  echo 'CLOUDFLARE_TUNNEL_TOKEN=your_token_here' >> .env"
-fi
+# Remind the user if either required var is missing/empty.
+check_env_var() {
+  local var="$1"
+  if ! grep -q "^${var}=.\+" "$SCRIPT_DIR/.env" 2>/dev/null; then
+    warn "${var} is not set in .env — add it before running docker compose"
+  fi
+}
+
+check_env_var "DOMAIN"
+check_env_var "CLOUDFLARE_TUNNEL_TOKEN"
 
 log "Done. Run: docker compose up -d --build"

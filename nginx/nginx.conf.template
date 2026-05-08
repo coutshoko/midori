@@ -23,21 +23,13 @@ http {
     include /etc/nginx/mime.types;
     default_type application/octet-stream;
 
-    # Docker's embedded DNS server.
-    # Using variables in proxy_pass (see below) defers hostname resolution to
-    # request time via this resolver, so nginx starts successfully even when
-    # upstream containers are still initializing or in a restart loop.
     resolver 127.0.0.11 valid=10s ipv6=off;
 
-    # Shared proxy headers — passed to every upstream.
-    # X-Forwarded-Proto is forwarded from Cloudflare so upstream apps see
-    # "https" even though the local hop is plain HTTP.
     proxy_set_header Host              $host;
     proxy_set_header X-Real-IP         $remote_addr;
     proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
 
-    # Drop requests that don't match any known virtual host.
     server {
         listen 80 default_server;
         server_name _;
@@ -46,7 +38,7 @@ http {
 
     server {
         listen 80;
-        server_name murakami.coutshoko.dev;
+        server_name murakami.${DOMAIN};
 
         location / {
             set $upstream murakami-quotes:3000;
@@ -56,7 +48,7 @@ http {
 
     server {
         listen 80;
-        server_name tarkov.coutshoko.dev;
+        server_name tarkov.${DOMAIN};
 
         location / {
             set $upstream tarkov:3000;
@@ -66,7 +58,7 @@ http {
 
     server {
         listen 80;
-        server_name dota2.coutshoko.dev;
+        server_name dota2.${DOMAIN};
 
         location / {
             set $upstream dota2:3000;
@@ -76,36 +68,13 @@ http {
 
     server {
         listen 80;
-        server_name chatboard.coutshoko.dev;
-
-        # Auth endpoints → backend (more specific, must come before catch-all)
-        location ~ ^/(register|login)$ {
-            set $upstream chatboard-backend:3000;
-            proxy_pass http://$upstream;
-        }
-
-        # API → backend
-        location /api/ {
-            set $upstream chatboard-backend:3000;
-            proxy_pass http://$upstream;
-        }
-
-        # Everything else → frontend SPA
-        location / {
-            set $upstream chatboard-frontend:3000;
-            proxy_pass http://$upstream;
-        }
+        server_name www.${DOMAIN};
+        return 301 $http_x_forwarded_proto://${DOMAIN}$request_uri;
     }
 
     server {
         listen 80;
-        server_name www.coutshoko.dev;
-        return 301 $http_x_forwarded_proto://coutshoko.dev$request_uri;
-    }
-
-    server {
-        listen 80;
-        server_name coutshoko.dev;
+        server_name ${DOMAIN};
 
         location / {
             set $upstream portfolio:3000;
